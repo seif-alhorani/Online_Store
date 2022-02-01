@@ -1,6 +1,45 @@
+<?php
+    session_start();
+    if(!isset($_SESSION['userlogin'])){
+        header("Location:login.php");
+    }
+    if(isset($_GET['logout'])){
+        session_destroy();
+        unset($_SESSION);
+        header("Location:login.php");
+    }
+    require_once("ProductList.php");
+    require_once("CreateDb.php");
+    $database=new CreateDb("useraccounts","Producttb");
+    if(isset($_POST['add'])){
+        if(isset($_SESSION['cart'])){
+           $item_array_id = array_column($_SESSION['cart'],"product_id");
+            
+            if(in_array($_POST['product_id'],$item_array_id)){
+                echo"<script>alert('Product is already add')</script>";
+                echo"<script>window.locatio='index.php'</script>";
+            }else{
+                $count=count($_SESSION['cart']);
+                $item_array=array(
+                    'product_id'=>$_POST['product_id']
+                );
+                $_SESSION['cart'][$count]=$item_array;
+                
+            }
+        }else{
+            $item_array=array(
+                'product_id'=>$_POST['product_id']
+            );
+            $_SESSION['cart'][0]=$item_array;
+            
+        }
+
+    }
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <!--Made by Saif Alhorani-->
     <meta charset="UTF-8">
@@ -16,7 +55,7 @@
         integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA=="
         crossorigin="anonymous" eferrerpolicy="no-referrer" />
     <!--CSS-->
-    <link rel="stylesheet" href="assets/Style/style.css">
+    <link rel="stylesheet" href="../assets/Style/style.css">
     <!-- google fonts-->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -40,26 +79,33 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="index.html">Home</a>
+                            <a class="nav-link active" aria-current="page" href="index.php">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="userlogin/login.php"><i class="fas fa-user"></i></a>
+                            <a class="nav-link" href="Checkin.php"><i class="fas fa-address-card"></i></a>
                         </li>
-                       
+                        <li class="nav-item">
+                            <a class="nav-link"href="index.php?logout=true"><i class="fas fa-sign-out-alt"></i></a>
+                        </li>
+                        <li class="nav-item" >
+                           <a class="nav-link " aria-current="page" href="cart.php"><i class="fas fa-shopping-cart"></i>Cart 
+                              <?php 
+                                if(isset($_SESSION['cart'])){
+                                    $count=count($_SESSION['cart']);
+                                    echo" <span id=\"cart_count\" class=\"bg-white\">$count</span>";
+                                }else{
+                                    
+                                    echo" <span id=\"cart_count\" class=\"bg-white\">0</span>";
+                                }
+                              ?>
+                           </a>
+                        </li>
                     </ul>
                     <form class="d-flex">
                         <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
                         <button class="btn btn-outline-light" type="submit"><i class="fas fa-search"></i></button>
                     </form>
-                    <!--
-                                Cart
-                                <form action="#" class="">
-                                    <a href="#" class=" rounded-pill ">
-                                        <span class="font-size-16 px-2 text-white "><i class="fas fa-shopping-cart"></i></span>
-                                        <span class="px-3 py-2 rounded-pill text-dark bg-light ">0</span>
-                                    </a>
-                                </form>
-                            -->
+                    
                 </div>
             </div>
         </nav>
@@ -82,13 +128,13 @@
                         <li><a class="dropdown-item" href="#">Something else here</a></li>
                     </ul>
                 </div>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Deals</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Gifts</a>
-                    </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Deals</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Gifts</a>
+                </li>
                 -->
             </ul>
             <!--PillsNav End-->
@@ -104,16 +150,16 @@
                 </div>
                 <div class="carousel-inner">
                     <div class="carousel-item active">
-                        <img src="assets/imges/c-d-x-PDX_a_82obo-unsplash_3_345x90.jpg" class="d-block w-100" alt="...">
+                        <img src="../assets/imges/c-d-x-PDX_a_82obo-unsplash_3_345x90.jpg" class="d-block w-100" alt="...">
                         <div class="carousel-caption d-none d-md-block"></div>
                     </div>
                     <div class="carousel-item">
-                        <img src="assets/imges/huawei-mateview-gt-se-wide-color-gamut2x_345x90.jpg"
+                        <img src="../assets/imges/huawei-mateview-gt-se-wide-color-gamut2x_345x90.jpg"
                             class="d-block w-100" alt="...">
-                        <div class="carousel-caption d-none d-md-block"></div>
+                        <div class="carousel-caption d-none d-md-block"> </div>
                     </div>
                     <div class="carousel-item">
-                        <img src="assets/imges/iphoneSlider.jpg" class="d-block w-100" alt="...">
+                        <img src="../assets/imges/iphoneSlider.jpg" class="d-block w-100" alt="...">
                         <div class="carousel-caption d-none d-md-block"></div>
                     </div>
                 </div>
@@ -128,110 +174,24 @@
                     <span class="visually-hidden">Next</span>
                 </button>
             </div>
-            <!-- Slider End-->
-
+            <!-- Slider End--> 
             <!-- Product slider Start here-->
-                    <div class="product-slider">
+                   <div class="product-slider">
                         <div class="slider-heading">
                             <h3>All Models.<span>Take your pick</span></h3>
                         </div>
-                       
                         <ul id="autoWidth" class="cs-hidden">
-                            <li class="item-a">
-                                <div class="product-box">
-                                    <a href="#">
-                                        <strong>samsung A21S</strong>
-                                        <img src="assets/menuimage/A21S.jpg" alt="">
-                                        <div class="available-colors">
-                                            <div class="product-color" style="background-color: rgb(65, 65, 138);"></div>
-                                            <div class="product-color" style="background-color: black;"></div>
-                                            <div class="product-color" style="background-color: red;"></div>
-                                            <div class="product-color" style="background-color: white;"></div>
-                                        </div>
-                                        <div class="buy-price">
-                                            <p> From 149 jod</p>
-                                            <hr>
-                                            <a href="userlogin/login.php" class="buy-btn">Buy</a>
-                                        </div>
-                                    </a>
-                                </div>
-                            </li>
-                            <li class="item-a">
-                                <div class="product-box">
-                                    <a href="#">
-                                        <strong>samsung S21</strong>
-                                        <img src="assets/menuimage/S21.jpg" alt="">
-                                        <div class="available-colors">
-                                            <div class="product-color" style="background-color: rgb(65, 65, 138);"></div>
-                                            <div class="product-color" style="background-color: black;"></div>
-                                            <div class="product-color" style="background-color: red;"></div>
-                                            <div class="product-color" style="background-color: white;"></div>
-                                        </div>
-                                        <div class="buy-price">
-                                            <p> From 799 jod</p>
-                                            <hr>
-                                            <a href="userlogin/login.php" class="buy-btn">Buy</a>
-                                        </div>
-                                    </a>
-                                </div>
-                            </li>
-                            <li class="item-a">
-                                <div class="product-box">
-                                    <a href="#">
-                                        <strong>iphone 13</strong>
-                                        <img src="assets/menuimage/iphone13.jpg" alt="">
-                                        <div class="available-colors">
-                                            <div class="product-color" style="background-color: rgb(65, 65, 138);"></div>
-                                            <div class="product-color" style="background-color: black;"></div>
-                                            <div class="product-color" style="background-color: red;"></div>
-                                            <div class="product-color" style="background-color: white;"></div>
-                                        </div>
-                                        <div class="buy-price">
-                                            <p> From 749 jod</p>
-                                            <hr>
-                                            <a href="userlogin/login.php" class="buy-btn">Buy</a>
-                                        </div>
-                                    </a>
-                                </div>
-                            </li>
-                            <li class="item-a">
-                                <div class="product-box">
-                                    <a href="#">
-                                        <strong> MSI GF65</strong>
-                                        <img src="assets/menuimage/MSIGF65.png" alt="">
-                                        <div class="available-colors">
-                                            <div class="product-color" style="background-color: black;"></div>
-                                        </div>
-                                        <div class="buy-price">
-                                            <p> From 850 jod</p>
-                                            <hr>
-                                            <a href="userlogin/login.php" class="buy-btn">Buy</a>
-                                        </div>
-                                    </a>
-                                </div>
-                            </li>
-                            <li class="item-a">
-                                <div class="product-box">
-                                    <a href="#">
-                                        <strong>Ipad Pro 12</strong>
-                                        <img src="assets/menuimage/ipadpro12.jpg" alt="">
-                                        <div class="available-colors">
-                                            <div class="product-color" style="background-color: rgb(65, 65, 138);"></div>
-                                            <div class="product-color" style="background-color: black;"></div>
-                                            <div class="product-color" style="background-color: red;"></div>
-                                            <div class="product-color" style="background-color: white;"></div>
-                                        </div>
-                                        <div class="buy-price">
-                                            <p> From 750 jod</p>
-                                            <hr>
-                                            <a href="userlogin/login.php" class="buy-btn">Buy</a>
-                                        </div>
-                                    </a>
-                                </div>
-                            </li>
+                            <?php
+                                $result=$database->getData();
+                                while($row=mysqli_fetch_assoc($result)){
+                                    component($row['product_name'],$row['product_price'],$row['product_image'],$row['id']);
+                                }
+                              
+                            ?>
+                            
                         </ul>
                     </div>
-                    <!-- Product slider  End here-->
+            <!-- Product slider  End here-->
         </section>
     </main>
     <footer class="bg-primary  text-dark -50" >
@@ -249,7 +209,7 @@
                 <i class="fab fa-twitter"></i>
               </div>
             </div>
-          </div>
+        </div>
     </footer>
     <!--Bootstrap-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
@@ -278,6 +238,7 @@
     });  
   });
     </script>
+
 </body>
 
 </html>
