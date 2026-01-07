@@ -9,21 +9,30 @@ class CreateDb{
     public $con;
 
     public function __construct(
-        $dbname = "useraccounts",
+        $dbname = null,
         $tablename = "producttb",
-        $servername = "localhost",
-        $username = "root",
-        $password = ""
+        $servername = null,
+        $username = null,
+        $password = null
     )
     {
-        $this->dbname = $dbname;
+        $env_host = getenv('DB_HOST');
+        $env_name = getenv('DB_NAME');
+        $env_user = getenv('DB_USER');
+        $env_pass = getenv('DB_PASS');
+
+        $this->dbname = $dbname ?? ($env_name !== false ? $env_name : 'useraccounts');
         $this->tablename = $tablename;
-        $this->servername = $servername;
-        $this->username = $username;
-        $this->password = $password;
+        $this->servername = $servername ?? ($env_host !== false ? $env_host : 'localhost');
+        $this->username = $username ?? ($env_user !== false ? $env_user : null);
+        $this->password = $password ?? ($env_pass !== false ? $env_pass : null);
+
+        if ($this->username === null || $this->password === null) {
+            die("Database credentials not set. Please set DB_USER and DB_PASS.");
+        }
   
         // create connection
-          $this->con = mysqli_connect($servername, $username, $password);
+          $this->con = mysqli_connect($this->servername, $this->username, $this->password);
   
           // Check connection
           if (!$this->con){
@@ -36,7 +45,7 @@ class CreateDb{
           // execute query
           if(mysqli_query($this->con, $sql)){
   
-              $this->con = mysqli_connect($servername, $username, $password, $dbname);
+              $this->con = mysqli_connect($this->servername, $this->username, $this->password, $this->dbname);
   
               // sql to create new table
               $sql = " CREATE TABLE IF NOT EXISTS $tablename

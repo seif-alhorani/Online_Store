@@ -12,6 +12,13 @@ Static storefront landing page for the Electricin electronics shop. Built with H
 1. Open `index.html` in a browser.
 2. The page loads assets from `assets/` and external CDNs (Bootstrap, Font Awesome, jQuery, LightSlider).
 
+## Configuration
+The PHP pages expect database credentials via environment variables:
+- `DB_HOST` (default: `localhost`)
+- `DB_NAME` (default: `useraccounts`)
+- `DB_USER` (required)
+- `DB_PASS` (required)
+
 ## Notes
 - This is a static project; no build step is required.
 - If the CDN links are unavailable, the page will render without those libraries.

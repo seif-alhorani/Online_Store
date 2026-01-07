@@ -84,21 +84,27 @@
 <main>
     <?php
             if(isset($_GET['password'])){
-                $servername = "localhost";
-                $username = "root";
-                $password = "";
-                $db_name="useraccounts";
+                $servername = getenv('DB_HOST') ?: 'localhost';
+                $db_user = getenv('DB_USER');
+                $db_pass = getenv('DB_PASS');
+                $db_name = getenv('DB_NAME') ?: 'useraccounts';
+
+                if ($db_user === false || $db_pass === false) {
+                    die("Database credentials not set. Please set DB_USER and DB_PASS.");
+                }
 
                 // Create connection
-                $conn = new mysqli($servername, $username, $password,$db_name);
+                $conn = new mysqli($servername, $db_user, $db_pass, $db_name);
 
                 // Check connection
                 if ($conn->connect_error) {
                 die("Connection failed: " . $conn->connect_error);
                 }
                 $password=$_GET['password'];
-                $sql = "SELECT * FROM users WHERE password='$password'";
-                $result = $conn->query($sql);
+                $stmt = $conn->prepare("SELECT * FROM users WHERE password = ?");
+                $stmt->bind_param("s", $password);
+                $stmt->execute();
+                $result = $stmt->get_result();
                 if($result->num_rows > 0){
                     
                     while($row= $result->fetch_assoc()){
